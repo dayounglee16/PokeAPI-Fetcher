@@ -7,8 +7,14 @@ const instance = axios.create({
   baseURL: "https://pokeapi.co/api/v2",
 });
 
+interface Pokemon {
+  id: number;
+  imgURL: string;
+  name: string;
+}
+
 function App() {
-  const [pokemonData, setPokemonData] = useState([]);
+  const [pokemonData, setPokemonData] = useState<Pokemon[]>([]);
 
   useEffect(() => {
     const getData = async () => {
@@ -19,8 +25,8 @@ function App() {
             limit: 200,
           },
         });
-        const result = await Promise.all(
-          mainRes.data.results.map(async (pokemonItem) => {
+        const result: Pokemon[] = await Promise.all(
+          mainRes.data.results.map(async (pokemonItem: { url: string }) => {
             // 포켓몬 상세 데이터 (이미지 불러오기)
             const urlRes = await instance.get(pokemonItem.url);
 
@@ -34,7 +40,8 @@ function App() {
 
             //포켓몬 한국어 이름 추출
             const koreanName = speciesRes.data.names.find(
-              (koreanName) => koreanName.language.name === "ko"
+              (koreanName: { language: { name: string } }) =>
+                koreanName.language.name === "ko"
             );
             //포켓몬 데이터 반환
             return {
